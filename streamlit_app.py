@@ -86,7 +86,7 @@ st.download_button(
 
     "datos.csv",
 
-    "text/csv"
+    "text/csv")
     if ventas.mean() > costos.mean():
 
     st.success("📈 Las ventas son mayores que los costos")
