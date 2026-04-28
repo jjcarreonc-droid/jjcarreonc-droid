@@ -59,3 +59,20 @@ st.line_chart(df, use_container_width=True)
 if st.checkbox("Mostrar datos"):
 
     st.write(df)
+min_val, max_val = st.slider(
+
+    "Filtrar valores",
+
+    float(df.min().min()),
+
+    float(df.max().max()),
+
+    (float(df.min().min()), float(df.max().max()))
+
+)
+
+df_filtrado = df[(df >= min_val) & (df <= max_val)]
+
+st.subheader("📊 Datos filtrados")
+
+st.line_chart(df_filtrado, use_container_width=True)
