@@ -4,95 +4,126 @@ import numpy as np
 
 import pandas as pd
 
-# Título
+# Configuración de la página
+
+st.set_page_config(page_title="Dashboard Ventas vs Costos", layout="wide")
 
 st.title("📊 Dashboard de Ventas vs Costos")
 
-# Slider
+# -------------------------
 
-n = st.slider("Cantidad de datos", 10, 100, 50)
+# Estado para regenerar datos
 
-# Botón para regenerar datos
+# -------------------------
 
 if "data" not in st.session_state:
 
-    st.session_state.data = np.random.randn(n)
+    st.session_state.data = None
 
-if st.button("🔄 Generar nuevos datos"):
+# -------------------------
 
-    st.session_state.data = np.random.randn(n)
+# Controles
 
-# Crear datos
-
-x = np.arange(len(st.session_state.data))
-
-ventas = st.session_state.data + np.random.randn(len(x)) * 0.5
-
-costos = st.session_state.data
-
-# DataFrame
-
-df = pd.DataFrame({
-
-    "Ventas": ventas,
-
-    "Costos": costos
-
-})
-
-# Métricas
+# -------------------------
 
 col1, col2 = st.columns(2)
 
-col1.metric("Promedio Ventas", round(ventas.mean(), 2))
+with col1:
 
-col2.metric("Promedio Costos", round(costos.mean(), 2))
+    n = st.slider("Cantidad de datos", 10, 200, 50)
 
-# Gráfica
+with col2:
 
-st.subheader("📈 Gráfica interactiva")
+    if st.button("🔄 Generar nuevos datos"):
 
-st.line_chart(df, use_container_width=True)
+        ventas = np.random.randn(n)
 
-# Tabla opcional
+        costos = np.random.randn(n)
 
-if st.checkbox("Mostrar datos"):
+        st.session_state.data = pd.DataFrame({
 
-    st.write(df)
-min_val, max_val = st.slider(
+            "Ventas": ventas,
 
-    "Filtrar valores",
+            "Costos": costos
 
-    float(df.min().min()),
+        })
 
-    float(df.max().max()),
+# Si no hay datos aún, generarlos automáticamente
 
-    (float(df.min().min()), float(df.max().max()))
+if st.session_state.data is None:
 
-)
+    ventas = np.random.randn(n)
 
-df_filtrado = df[(df >= min_val) & (df <= max_val)]
+    costos = np.random.randn(n)
 
-st.subheader("📊 Datos filtrados")
+    st.session_state.data = pd.DataFrame({
 
-st.line_chart(df_filtrado, use_container_width=True)
-csv = df.to_csv(index=False).encode('utf-8')
-st.download_button(
+        "Ventas": ventas,
 
-    "📥 Descargar datos",
+        "Costos": costos
 
-    csv,
+    })
 
-    "datos.csv",
+df = st.session_state.data
 
-    "text/csv")
+# -------------------------
 
-    if ventas.mean() > costos.mean():
+# Métricas
+
+# -------------------------
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    st.metric("Promedio Ventas", round(df["Ventas"].mean(), 2))
+
+with col2:
+
+    st.metric("Promedio Costos", round(df["Costos"].mean(), 2))
+
+# -------------------------
+
+# Comparación
+
+# -------------------------
+
+if df["Ventas"].mean() > df["Costos"].mean():
 
     st.success("📈 Las ventas son mayores que los costos")
 
 else:
 
-    st.warning("⚠️ Los costos superan las ventas")
+    st.error("📉 Los costos son mayores que las ventas")
 
-)
+# -------------------------
+
+# Gráfica principal
+
+# -------------------------
+
+st.subheader("📉 Gráfica interactiva")
+
+st.line_chart(df)
+
+# -------------------------
+
+# Tabla de datos
+
+# -------------------------
+
+with st.expander("Ver datos"):
+
+    st.dataframe(df)
+
+# -------------------------
+
+# Extra: diferencia acumulada
+
+# -------------------------
+
+df["Diferencia"] = df["Ventas"] - df["Costos"]
+
+st.subheader("📊 Diferencia Ventas - Costos")
+
+st.bar_chart(df["Diferencia"])
