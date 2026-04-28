@@ -77,7 +77,6 @@ st.subheader("📊 Datos filtrados")
 
 st.line_chart(df_filtrado, use_container_width=True)
 csv = df.to_csv(index=False).encode('utf-8')
-
 st.download_button(
 
     "📥 Descargar datos",
@@ -87,6 +86,7 @@ st.download_button(
     "datos.csv",
 
     "text/csv")
+
     if ventas.mean() > costos.mean():
 
     st.success("📈 Las ventas son mayores que los costos")
